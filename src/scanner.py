@@ -9,11 +9,7 @@ from io import BytesIO
 import os
 
 from notifier import Notifier
-
-CL_RSS_FEED = "https://sfbay.craigslist.org/search/sss?format=rss&query=chair&sort=date"
-MODEL_PATH = "/path/to/savedmodel.h5"
-SCORE_THRESHOLD = 0.7
-NOTIFICATION_SERVICE = "console"
+from config import CL_RSS_FEED, MODEL_PATH, SCORE_THRESHOLD, NOTIFICATION_SERVICE
 
 # Headers copied from Firefox for Linux v81.0
 headers_xml = {
@@ -72,5 +68,5 @@ for entry in feed.entries:
         score = fetch_and_test_image(entry['enc_enclosure']['resource'], model)
         if score >= SCORE_THRESHOLD:
             notifier.notify(entry, score)
-    except:
-        pass
+    except Exception as e:
+        print(e)

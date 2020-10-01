@@ -26,13 +26,17 @@ Once the images are in place, you can train your model by running
 
 ### Scanning
 
-Once the model has been trained, you will need to set some configurations in `scanner.py`. 
+Once the model has been trained, you will need to set some configurations in `config.py`. 
 
 | Name            | Description                                                         |
 | --------------- | ------------------------------------------------------------------- |
-|   CL_RSS_FEED   | Provide the URL to the Craigslist RSS feed (note the 'query' field) |
-|    MODEL_PATH   | Full path to the saved epoch .h5 file during your model training    |
+| CL_RSS_FEED     | Provide the URL to the Craigslist RSS feed (note the 'query' field) |
+| MODEL_PATH      | Full path to the saved epoch .h5 file during your model training    |
 | SCORE_THRESHOLD | Float from 1.0 to 0.0 of when you would like notifcations sent      |
+| TWILIO_SID      | Your Twilio SID                                                     |
+| TWILIO_TOKEN    | Your Twilio Auth Token                                              |
+| TWILIO_TO_NUM   | The phone number to text notifications to                           |
+| TWILIO_FROM_NUM | The Twilio number to send text notifications from                   |
 
 The scanner can then be run by issuing
 
