@@ -1,5 +1,6 @@
 CL_RSS_FEED = "https://sfbay.craigslist.org/search/sss?format=rss&query=&sort=date"
 MODEL_PATH = "/path/to/modelfile.h5"
+KEEP_IMAGES = True
 SCORE_THRESHOLD = 0.7
 NOTIFICATION_SERVICE = "console"
 TWILIO_SID = ""

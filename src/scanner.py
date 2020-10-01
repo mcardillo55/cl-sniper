@@ -11,7 +11,7 @@ import os
 import pickle
 
 from notifier import Notifier
-from config import CL_RSS_FEED, MODEL_PATH, SCORE_THRESHOLD, NOTIFICATION_SERVICE
+from config import KEEP_IMAGES, CL_RSS_FEED, MODEL_PATH, SCORE_THRESHOLD, NOTIFICATION_SERVICE
 
 # Headers copied from Firefox for Linux v81.0
 headers_xml = {
@@ -40,23 +40,24 @@ headers_img = {
 }
 
 def fetch_and_test_image(url, model):
-    tmp_file_name = "tmp_img.jpg"
+    img_path = os.path.join('images', url.split('/')[-1])
     r = requests.get(url, headers=headers_img)
 
     img = Image.open(BytesIO(r.content))
-    img.save(tmp_file_name)
+    img.save(img_path)
 
     image_size = (150, 150)
 
     img = keras.preprocessing.image.load_img(
-        tmp_file_name, target_size=image_size
+        img_path, target_size=image_size
     )
     img_array = keras.preprocessing.image.img_to_array(img)
     img_array = tf.expand_dims(img_array, 0)  # Create batch axis
 
     predictions = model.predict(img_array)
 
-    os.remove("./tmp_img.jpg")
+    if not KEEP_IMAGES:
+        os.remove(img_path)
     return predictions[0][0]
 
 notifier = Notifier(NOTIFICATION_SERVICE)
