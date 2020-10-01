@@ -57,10 +57,12 @@ def fetch_and_test_image(url, model):
     os.remove("./tmp_img.jpg")
     return predictions[0][0]
 
+notifier = Notifier(NOTIFICATION_SERVICE)
 r = requests.get(CL_RSS_FEED, headers=headers_xml)
+if r.status_code != 200:
+    notifier.notify_message(r.content)
 
 feed = feedparser.parse(r.content)
-notifier = Notifier(NOTIFICATION_SERVICE)
 model = keras.models.load_model(MODEL_PATH)
 scores = []
 for entry in feed.entries:
