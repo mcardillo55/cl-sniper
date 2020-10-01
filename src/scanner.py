@@ -8,9 +8,12 @@ from PIL import Image
 from io import BytesIO
 import os
 
+from notifier import Notifier
+
 CL_RSS_FEED = "https://sfbay.craigslist.org/search/sss?format=rss&query=chair&sort=date"
 MODEL_PATH = "/path/to/savedmodel.h5"
 SCORE_THRESHOLD = 0.7
+NOTIFICATION_SERVICE = "console"
 
 # Headers copied from Firefox for Linux v81.0
 headers_xml = {
@@ -61,12 +64,13 @@ def fetch_and_test_image(url, model):
 r = requests.get(CL_RSS_FEED, headers=headers_xml)
 
 feed = feedparser.parse(r.content)
+notifier = Notifier(NOTIFICATION_SERVICE)
 model = keras.models.load_model(MODEL_PATH)
 scores = []
 for entry in feed.entries:
     try:
         score = fetch_and_test_image(entry['enc_enclosure']['resource'], model)
         if score >= SCORE_THRESHOLD:
-            print(entry['link'], score)
+            notifier.notify(entry, score)
     except:
         pass
