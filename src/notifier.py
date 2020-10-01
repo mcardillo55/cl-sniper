@@ -11,15 +11,24 @@ class Notifier(object):
     def notify(self, entry, score):
         self.notifier.notify(entry, score)
 
+    def notify_message(self, message):
+        self.notifier.notify_message(message)
+
 class TwilioNotifier(Notifier):
     def __init__(self):
         self.client = Client(TWILIO_SID, TWILIO_TOKEN)
 
     def notify(self, entry, score):
+        self._send_sms("%s %f" % (entry['link'], score))
+
+    def notify_message(self, message):
+        self._send_sms(message)
+
+    def _send_sms(self, message):
         message = self.client.messages.create(
             to=TWILIO_TO_NUM,
             from_=TWILIO_FROM_NUM,
-            body="%s %f" % (entry['link'], score)
+            body=message
         )
 
 class ConsoleNotifier(Notifier):
@@ -28,3 +37,6 @@ class ConsoleNotifier(Notifier):
 
     def notify(self, entry, score):
         print(entry['link'], score)
+
+    def notify_message(self, message):
+        print(message)
