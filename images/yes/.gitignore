@@ -1,0 +1,3 @@
+# This .gitignore is to keep this directory structure
+*
+!.gitignore
