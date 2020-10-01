@@ -18,7 +18,7 @@ TensorFlow is also required, but not included in `requirements.txt`, as it is re
 
 ### Training
 
-You will need to provide a set of positive and negative images of the desired object. Positive images should be placed in `./images/yes` and negative images should be placed in `./images/no`.
+You will need to provide a set of positive and negative images of the desired object. Positive images should be placed in `./src/images/yes` and negative images should be placed in `./src/images/no`.
 
 Once the images are in place, you can train your model by running
 
