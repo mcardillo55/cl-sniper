@@ -5,8 +5,10 @@ import requests
 import feedparser
 from PIL import Image
 
+from datetime import datetime
 from io import BytesIO
 import os
+import pickle
 
 from notifier import Notifier
 from config import CL_RSS_FEED, MODEL_PATH, SCORE_THRESHOLD, NOTIFICATION_SERVICE
@@ -58,17 +60,32 @@ def fetch_and_test_image(url, model):
     return predictions[0][0]
 
 notifier = Notifier(NOTIFICATION_SERVICE)
+
 r = requests.get(CL_RSS_FEED, headers=headers_xml)
 if r.status_code != 200:
     notifier.notify_message(r.content)
+
+# Load in previously analyzed URLs
+seen_filename = 'seen.pkl'
+try:
+    with open(seen_filename, 'rb') as f:
+        seen = pickle.load(f)
+except FileNotFoundError:
+    seen = {}
 
 feed = feedparser.parse(r.content)
 model = keras.models.load_model(MODEL_PATH)
 scores = []
 for entry in feed.entries:
-    try:
-        score = fetch_and_test_image(entry['enc_enclosure']['resource'], model)
-        if score >= SCORE_THRESHOLD:
-            notifier.notify(entry, score)
-    except Exception as e:
-        print(e)
+    if entry['link'] not in seen:
+        try:
+            score = fetch_and_test_image(entry['enc_enclosure']['resource'], model)
+            if score >= SCORE_THRESHOLD:
+                notifier.notify(entry, score)
+        except Exception as e:
+            print(e)
+        seen[entry['link']] = datetime.now()
+
+# Save dict of analyzed URLs for next run
+with open(seen_filename, 'wb') as f:
+    pickle.dump(seen, f)
