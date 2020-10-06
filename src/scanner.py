@@ -11,6 +11,7 @@ import os
 import pickle
 import time
 import random
+import multiprocessing
 
 from notifier import Notifier
 from config import KEEP_IMAGES, CL_RSS_FEED, CL_CITY, MODEL_PATH, SCORE_THRESHOLD, NOTIFICATION_SERVICE
@@ -41,6 +42,8 @@ headers_img = {
     'Cache-Control': 'no-cache'
 }
 
+notifier = Notifier(NOTIFICATION_SERVICE)
+
 def fetch_and_test_image(url, model):
     img_path = os.path.join('images', url.split('/')[-1])
     r = requests.get(url, headers=headers_img)
@@ -62,9 +65,7 @@ def fetch_and_test_image(url, model):
         os.remove(img_path)
     return predictions[0][0]
 
-notifier = Notifier(NOTIFICATION_SERVICE)
-
-while True:
+def scan():
     print("[%s] starting analysis..." % (datetime.now()))
 
     r = requests.get(CL_RSS_FEED, headers=headers_xml)
@@ -96,6 +97,11 @@ while True:
     # Save dict of analyzed URLs for next run
     with open(seen_filename, 'wb') as f:
         pickle.dump(seen, f)
+
+while True:
+    p = multiprocessing.Process(target=scan) # Run scan() in separate process to free up GPU memory while sleeping
+    p.start()
+    p.join()
 
     sleep_time = 60*15+random.randint(1,60*15)
     print("sleeping for %f minutes." % (sleep_time / 60.0))
