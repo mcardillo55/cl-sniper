@@ -9,6 +9,8 @@ from datetime import datetime
 from io import BytesIO
 import os
 import pickle
+import time
+import random
 
 from notifier import Notifier
 from config import KEEP_IMAGES, CL_RSS_FEED, MODEL_PATH, SCORE_THRESHOLD, NOTIFICATION_SERVICE
@@ -62,6 +64,9 @@ def fetch_and_test_image(url, model):
 
 notifier = Notifier(NOTIFICATION_SERVICE)
 
+while True:
+    print("[%s] starting analysis..." % (datetime.now()))
+
 r = requests.get(CL_RSS_FEED, headers=headers_xml)
 if r.status_code != 200:
     notifier.notify_message(r.content)
@@ -90,3 +95,7 @@ for entry in feed.entries:
 # Save dict of analyzed URLs for next run
 with open(seen_filename, 'wb') as f:
     pickle.dump(seen, f)
+
+    sleep_time = 60*15+random.randint(1,60*15)
+    print("sleeping for %f minutes." % (sleep_time / 60.0))
+    time.sleep(sleep_time)
