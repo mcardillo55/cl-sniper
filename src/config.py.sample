@@ -1,4 +1,5 @@
-CL_RSS_FEED = "https://sfbay.craigslist.org/search/sss?format=rss&query=&sort=date"
+CL_CITY = "sfbay"
+CL_RSS_FEED = f"https://{CL_CITY}.craigslist.org/search/sss?format=rss&query=chair&sort=date"
 MODEL_PATH = "/path/to/modelfile.h5"
 KEEP_IMAGES = True
 SCORE_THRESHOLD = 0.7

@@ -26,10 +26,11 @@ Once the images are in place, you can train your model by running
 
 ### Scanning
 
-Once the model has been trained, you will need to set some configurations in `config.py`. 
+Once the model has been trained, `cp ./config.py.sample ./config.py`, then set the following options:
 
 | Name            | Description                                                         |
 | --------------- | ------------------------------------------------------------------- |
+| CL_CITY         | The craiglist city name to scan on (e.g. 'sfbay', 'newyork')        |
 | CL_RSS_FEED     | Provide the URL to the Craigslist RSS feed (note the 'query' field) |
 | MODEL_PATH      | Full path to the saved epoch .h5 file during your model training    |
 | KEEP_IMAGES     | Keep analyzed images (useful for retraining model)                  |
