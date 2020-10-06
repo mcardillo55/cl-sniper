@@ -6,54 +6,40 @@ from tensorflow.keras import layers
 def make_model(input_shape, num_classes):
     inputs = keras.Input(shape=input_shape)
 
-    # Entry block
-    x = layers.experimental.preprocessing.Rescaling(1.0 / 255)(inputs)
+    x = data_augmentation(inputs)
+    x = layers.experimental.preprocessing.Rescaling(1.0 / 255)(x)
+
     x = layers.Conv2D(32, 3, strides=2, padding="same")(x)
-    x = layers.BatchNormalization()(x)
+    x = layers.Conv2D(32, 3, strides=2, padding="same")(x)
+    x = layers.MaxPooling2D((3,3), strides=2, padding="same")(x)
     x = layers.Activation("relu")(x)
+    x = layers.Dropout(0.25)(x)
 
     x = layers.Conv2D(64, 3, padding="same")(x)
-    x = layers.BatchNormalization()(x)
+    x = layers.Conv2D(64, 3, padding="same")(x)
+    x = layers.MaxPooling2D((3,3), strides=2, padding="same")(x)
     x = layers.Activation("relu")(x)
-
-    previous_block_activation = x  # Set aside residual
-
-    for size in [128, 256, 512, 728]:
-        x = layers.Activation("relu")(x)
-        x = layers.SeparableConv2D(size, 3, padding="same")(x)
-        x = layers.BatchNormalization()(x)
-
-        x = layers.Activation("relu")(x)
-        x = layers.SeparableConv2D(size, 3, padding="same")(x)
-        x = layers.BatchNormalization()(x)
-
-        x = layers.MaxPooling2D(3, strides=2, padding="same")(x)
-
-        # Project residual
-        residual = layers.Conv2D(size, 1, strides=2, padding="same")(
-            previous_block_activation
-        )
-        x = layers.add([x, residual])  # Add back residual
-        previous_block_activation = x  # Set aside next residual
-
-    x = layers.SeparableConv2D(1024, 3, padding="same")(x)
-    x = layers.BatchNormalization()(x)
-    x = layers.Activation("relu")(x)
-
-    x = layers.GlobalAveragePooling2D()(x)
-    if num_classes == 2:
-        activation = "sigmoid"
-        units = 1
-    else:
-        activation = "softmax"
-        units = num_classes
-
     x = layers.Dropout(0.5)(x)
-    outputs = layers.Dense(units, activation=activation)(x)
+
+    x = layers.Flatten()(x)
+    x = layers.Dense(512, activation='relu')(x)
+    x = layers.Dropout(0.6)(x)
+    x = layers.Dense(256, activation='relu')(x)
+    x = layers.Dropout(0.5)(x)
+
+    outputs = layers.Dense(1, activation='sigmoid')(x)
     return keras.Model(inputs, outputs)
 
-image_size = (150, 150)
+image_size = (256, 256)
 batch_size = 32
+
+data_augmentation = keras.Sequential(
+    [
+        layers.experimental.preprocessing.RandomFlip("horizontal"),
+        layers.experimental.preprocessing.RandomRotation(0.1),
+    ]
+)
+
 
 train_ds = tf.keras.preprocessing.image_dataset_from_directory(
     "images", 

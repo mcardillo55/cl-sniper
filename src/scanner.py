@@ -46,7 +46,7 @@ def fetch_and_test_image(url, model):
     img = Image.open(BytesIO(r.content))
     img.save(img_path)
 
-    image_size = (150, 150)
+    image_size = (256, 256)
 
     img = keras.preprocessing.image.load_img(
         img_path, target_size=image_size
