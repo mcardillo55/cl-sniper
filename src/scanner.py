@@ -81,16 +81,17 @@ while True:
 
     feed = feedparser.parse(r.content)
     model = keras.models.load_model(MODEL_PATH)
-    scores = []
+    matches = []
     for entry in feed.entries:
         if entry['link'] not in seen:
             try:
                 score = fetch_and_test_image(entry['enc_enclosure']['resource'], model)
                 if score >= SCORE_THRESHOLD:
-                    notifier.notify(entry, score)
+                    matches.append((entry, score))     
             except Exception as e:
                 print(e)
             seen[entry['link']] = datetime.now()
+    notifier.notify(matches)
 
     # Save dict of analyzed URLs for next run
     with open(seen_filename, 'wb') as f:
